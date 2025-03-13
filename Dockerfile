@@ -20,7 +20,8 @@ USER $USERNAME
 WORKDIR /home/$USERNAME
 
 # Configure chain to testnet
-RUN echo '{"chain": "Testnet"}' > /home/$USERNAME/visor.json
+RUN echo '{"chain": "Mainnet"}' > /home/$USERNAME/visor.json
+RUN echo '{ "root_node_ips": [{"Ip": "74.226.182.22"},{"Ip": "57.182.103.24"},{"Ip": "3.115.170.40"},{"Ip": "46.105.222.166"},{"Ip": "91.134.41.52"},{"Ip": "57.180.50.253"},{"Ip": "52.68.71.160"},{"Ip": "13.114.116.44"},{"Ip": "199.254.199.190"},{"Ip": "72.46.87.191"}], "try_new_peers": true, "chain": "Mainnet" }' > /home/$USERNAME/override_gossip_config.json
 
 # Import GPG public key
 RUN curl -o /home/$USERNAME/pub_key.asc $PUB_KEY_URL \
@@ -33,7 +34,18 @@ RUN curl -o /home/$USERNAME/hl-visor $HL_VISOR_URL \
     && chmod +x /home/$USERNAME/hl-visor
 
 # Expose gossip ports
-EXPOSE 4000-4010
+EXPOSE 4000
+EXPOSE 4001
+EXPOSE 4002
+EXPOSE 4003
+EXPOSE 4004
+EXPOSE 4005
+EXPOSE 4006
+EXPOSE 4007
+EXPOSE 4008
+EXPOSE 4009
+EXPOSE 4010
+EXPOSE 3001
 
 # Run a non-validating node
-ENTRYPOINT ["/home/hluser/hl-visor", "run-non-validator", "--replica-cmds-style", "recent-actions"]
+ENTRYPOINT ["/home/hluser/hl-visor", "run-non-validator", "--serve-eth-rpc", "--write-trades", "--write-order-statuses"]

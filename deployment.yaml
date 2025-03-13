@@ -1,0 +1,139 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hyperliquid-node
+  labels:
+    app: hyperliquid-node
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hyperliquid-node
+  template:
+    metadata:
+      labels:
+        app: hyperliquid-node
+    spec:
+      imagePullSecrets:
+        - name: ecr-secret
+      securityContext:
+        fsGroup: 10000
+      containers:
+      - name: hyperliquid-node
+        image: 609193078125.dkr.ecr.us-east-1.amazonaws.com/hyperliquid-node-new
+        ports:
+        - containerPort: 4000
+          name: p2p-gossip-1
+        - containerPort: 4001
+          name: p2p-gossip-2
+        - containerPort: 4002
+          name: p2p-gossip-3
+        - containerPort: 4003
+          name: p2p-gossip-4
+        - containerPort: 4004
+          name: p2p-gossip-5
+        - containerPort: 4005
+          name: p2p-gossip-6
+        - containerPort: 4006
+          name: p2p-gossip-7
+        - containerPort: 4007
+          name: p2p-gossip-8
+        - containerPort: 4008
+          name: p2p-gossip-9
+        - containerPort: 4009
+          name: p2p-gossip-10
+        - containerPort: 4010
+          name: p2p-gossip-11
+        - containerPort: 3001
+          name: eth-rpc
+        volumeMounts:
+        - name: data-volume
+          mountPath: /home/hluser/hl/data
+        securityContext:
+          runAsUser: 10000
+      volumes:
+        - name: data-volume
+          persistentVolumeClaim:
+            claimName: hyperliquid-pvc
+
+      tolerations:
+        - key: "hyperliquid-node"
+          operator: "Equal"
+          value: "hyperliquid-node"
+          effect: "NoSchedule"
+      nodeSelector:
+        eks.amazonaws.com/nodegroup: hyperliquid-node
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hyperliquid-node-p2p
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: nlb
+    service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 4000
+    targetPort: 4000
+    protocol: TCP
+    name: gossip-4000
+  - port: 4001
+    targetPort: 4001
+    protocol: TCP
+    name: gossip-4001
+  - port: 4002
+    targetPort: 4002
+    protocol: TCP
+    name: gossip-4002
+  - port: 4003
+    targetPort: 4003
+    protocol: TCP
+    name: gossip-4003
+  - port: 4004
+    targetPort: 4004
+    protocol: TCP
+    name: gossip-4004
+  - port: 4005
+    targetPort: 4005
+    protocol: TCP
+    name: gossip-4005
+  - port: 4006
+    targetPort: 4006
+    protocol: TCP
+    name: gossip-4006
+  - port: 4007
+    targetPort: 4007
+    protocol: TCP
+    name: gossip-4007
+  - port: 4008
+    targetPort: 4008
+    protocol: TCP
+    name: gossip-4008
+  - port: 4009
+    targetPort: 4009
+    protocol: TCP
+    name: gossip-4009
+  - port: 4010
+    targetPort: 4010
+    protocol: TCP
+    name: gossip-4010
+  selector:
+    app: hyperliquid-node
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hyperliquid-node-rpc
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: nlb
+    service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 3001
+    targetPort: 3001
+    protocol: TCP
+    name: eth-rpc
+  selector:
+    app: hyperliquid-node
