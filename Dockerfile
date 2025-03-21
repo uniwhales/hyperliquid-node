@@ -33,6 +33,9 @@ RUN curl -o /home/$USERNAME/hl-visor $HL_VISOR_URL \
     && gpg --verify /home/$USERNAME/hl-visor.asc /home/$USERNAME/hl-visor \
     && chmod +x /home/$USERNAME/hl-visor
 
+RUN sysctl -w net.ipv4.tcp_rmem="4096 87380 8388608"
+RUN sysctl -w net.ipv4.tcp_wmem="4096 16384 8388608"
+
 # Expose gossip ports
 EXPOSE 4000
 EXPOSE 4001
